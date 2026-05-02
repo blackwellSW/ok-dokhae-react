@@ -13,37 +13,9 @@ import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { colors, fonts, spacing, radius } from '@/constants/theme';
+import { mockApiService, type Work } from '@/services/mockApiService';
 
-type Work = {
-  id: string;
-  title: string;
-  author: string;
-  category: string;
-  baseColor: string;
-  spineColor: string;
-  studyTime: string;
-};
-
-const DEMO_WORKS: Work[] = [
-  {
-    id: 'simcheong',
-    title: '심청전',
-    author: '작자미상',
-    category: '고전소설',
-    baseColor: '#D7CCC8',
-    spineColor: '#5D4037',
-    studyTime: '5분',
-  },
-  {
-    id: 'gwandong',
-    title: '관동별곡',
-    author: '정철',
-    category: '고전시가',
-    baseColor: '#C8E6C9',
-    spineColor: '#1B5E20',
-    studyTime: '5분',
-  },
-];
+const DEMO_WORKS: Work[] = mockApiService.getWorks();
 
 type UploadedFile = { name: string; uri: string };
 
