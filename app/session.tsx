@@ -7,7 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   Animated,
-  Modal,
+  PanResponder,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
@@ -33,7 +33,7 @@ const COLLAPSED_H = 48;
 export default function SessionScreen() {
   const { id, title } = useLocalSearchParams<{ id: string; title: string }>();
   const { height: windowHeight } = useWindowDimensions();
-  const halfScreen = windowHeight / 2;
+  const halfScreen = windowHeight * 0.35;
 
   const [step, setStep] = useState<Step>('loading');
   const [content, setContent] = useState<string[]>([]);
@@ -49,6 +49,25 @@ export default function SessionScreen() {
 
   const chatListRef = useRef<FlatList>(null);
   const contentHeightAnim = useRef(new Animated.Value(COLLAPSED_H)).current;
+  const evidencePanY = useRef(new Animated.Value(0)).current;
+  const evidencePanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gs) => {
+        if (gs.dy > 0) evidencePanY.setValue(gs.dy);
+      },
+      onPanResponderRelease: (_, gs) => {
+        if (gs.dy > 80) {
+          Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
+            setShowEvidenceModal(false);
+            evidencePanY.setValue(0);
+          });
+        } else {
+          Animated.spring(evidencePanY, { toValue: 0, useNativeDriver: true }).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
     initSession();
@@ -210,7 +229,7 @@ export default function SessionScreen() {
           </View>
         )}
         <View style={styles.inputRow}>
-          <TouchableOpacity onPress={pickFile} style={styles.inputIcon}>
+          <TouchableOpacity onPress={pickFile} style={[styles.inputIcon, { marginLeft: -4 }]}>
             <MaterialCommunityIcons name="paperclip" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
           <TextInput
@@ -221,8 +240,6 @@ export default function SessionScreen() {
             placeholderTextColor={colors.textSecondary}
             onSubmitEditing={() => sendMessage()}
             returnKeyType="send"
-            blurOnSubmit={false}
-            multiline
           />
           <TouchableOpacity onPress={() => sendMessage()} style={styles.inputIcon}>
             <MaterialCommunityIcons name="send" size={22} color={colors.accent} />
@@ -297,6 +314,7 @@ export default function SessionScreen() {
               name={isContentExpanded ? 'chevron-up' : 'chevron-down'}
               size={20}
               color={colors.textSecondary}
+              style={{ marginLeft: -1 }}
             />
           </TouchableOpacity>
 
@@ -316,9 +334,10 @@ export default function SessionScreen() {
       {renderBottomArea()}
 
       {/* 세션 종료 모달 */}
-      <Modal visible={showExitModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowExitModal(false)}>
-          <TouchableOpacity activeOpacity={1} style={styles.modalSheet}>
+      {showExitModal && (
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setShowExitModal(false)} />
+          <View style={[styles.modalSheet, Platform.OS === 'web' ? { cursor: 'default' } as any : {}]}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>세션을 종료하시겠습니까?</Text>
             <Text style={styles.modalDesc}>지금까지의 대화 내용을 바탕으로 분석 리포트를 생성합니다.</Text>
@@ -329,15 +348,23 @@ export default function SessionScreen() {
             <TouchableOpacity style={styles.modalSecondaryBtn} onPress={() => setShowExitModal(false)}>
               <Text style={styles.modalSecondaryBtnText}>아니요, 더 대화할래요</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+          </View>
+        </View>
+      )}
 
       {/* 근거 문장 모달 */}
-      <Modal visible={showEvidenceModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowEvidenceModal(false)}>
-          <TouchableOpacity activeOpacity={1} style={styles.modalSheet}>
-            <View style={styles.modalHandle} />
+      {showEvidenceModal && (
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => {
+            Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
+              setShowEvidenceModal(false);
+              evidencePanY.setValue(0);
+            });
+          }} />
+          <Animated.View style={[styles.modalSheet, { transform: [{ translateY: evidencePanY }] }, Platform.OS === 'web' ? { cursor: 'default' } as any : {}]}>
+            <View {...evidencePanResponder.panHandlers} style={styles.modalHandleArea}>
+              <View style={styles.modalHandle} />
+            </View>
             <View style={styles.evidenceRow}>
               <MaterialCommunityIcons name="book-open-variant" size={20} color={colors.accent} />
               <Text style={styles.modalTitle}>근거 문장 확인</Text>
@@ -352,16 +379,21 @@ export default function SessionScreen() {
             <View style={styles.evidenceHint}>
               <MaterialCommunityIcons name="lightbulb-outline" size={14} color="#F57F17" />
               <Text style={styles.evidenceHintText}>
-                💡 튜터의 노트: 이 문장에서 화자의 감정이 '슬픔'임을 직접적으로 확인할 수 있어요.
+                튜터의 노트: 이 문장에서 화자의 감정이 '슬픔'임을 직접적으로 확인할 수 있어요.
               </Text>
             </View>
             <View style={{ height: spacing.lg }} />
-            <TouchableOpacity style={styles.modalPrimaryBtn} onPress={() => setShowEvidenceModal(false)}>
+            <TouchableOpacity style={styles.modalPrimaryBtn} onPress={() => {
+              Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
+                setShowEvidenceModal(false);
+                evidencePanY.setValue(0);
+              });
+            }}>
               <Text style={styles.modalPrimaryBtnText}>확인</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+          </Animated.View>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -383,7 +415,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: colors.background,
   },
-  headerIcon: { paddingVertical: 8, paddingHorizontal: 0 },
+  headerIcon: { paddingVertical: 8, paddingHorizontal: 0, marginLeft: -4 },
   headerTitle: {
     flex: 1,
     fontFamily: fonts.medium,
@@ -399,6 +431,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: radius.full,
+    marginRight: -6,
   },
   exitBtnText: { fontFamily: fonts.bold, fontSize: 13, color: colors.accent },
   statusBar: {
@@ -430,7 +463,8 @@ const styles = StyleSheet.create({
   contentHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingLeft: spacing.md,
+    paddingRight: 9,
     paddingVertical: 12,
     gap: spacing.sm,
   },
@@ -538,9 +572,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 15,
     color: colors.text,
-    maxHeight: 80,
-    paddingVertical: 0,
-    textAlignVertical: 'center',
+    height: 40,
+    paddingVertical: 11,
   },
   inputIcon: { padding: 8 },
   reportButtonArea: { padding: spacing.md },
@@ -554,9 +587,22 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   reportButtonText: { fontFamily: fonts.bold, fontSize: 16, color: '#fff' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+    zIndex: 100,
+  },
   modalSheet: { backgroundColor: colors.background, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing.lg },
-  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: spacing.md },
+  modalHandleArea: {
+    alignItems: 'center',
+    paddingVertical: 8,
+    marginTop: -8,
+    marginHorizontal: -spacing.lg,
+    ...(Platform.OS === 'web' ? { cursor: 'grab' } as any : {}),
+  },
+  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center' },
   modalTitle: { fontFamily: fonts.bold, fontSize: 18, color: colors.text },
   modalDesc: { fontFamily: fonts.regular, fontSize: 14, color: colors.textSecondary, marginTop: 6 },
   modalPrimaryBtn: { height: 52, backgroundColor: colors.accent, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
