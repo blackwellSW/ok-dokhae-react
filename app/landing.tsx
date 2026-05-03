@@ -69,6 +69,7 @@ export default function LandingScreen() {
 
   const flatListRef = useRef<FlatList>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const skipAnim = useRef(new Animated.Value(1)).current;
 
   // 0 = 비활성, 1 = 활성 — width·color 둘 다 여기서 interpolate
   const dotProgress = useRef(SLIDES.map((_, i) => new Animated.Value(i === 0 ? 1 : 0))).current;
@@ -96,8 +97,14 @@ export default function LandingScreen() {
   const updatePage = (page: number) => {
     const wasLast = currentPage === SLIDES.length - 1;
     const willBeLast = page === SLIDES.length - 1;
-    if (!wasLast && willBeLast) animateBottomButtons(true);
-    if (wasLast && !willBeLast) animateBottomButtons(false);
+    if (!wasLast && willBeLast) {
+      animateBottomButtons(true);
+      Animated.timing(skipAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+    }
+    if (wasLast && !willBeLast) {
+      animateBottomButtons(false);
+      Animated.timing(skipAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+    }
     animateDots(page);
     setCurrentPage(page);
   };
@@ -134,7 +141,7 @@ export default function LandingScreen() {
       ]}
     >
       <View style={styles.iconCircle}>
-        <MaterialCommunityIcons name={item.icon} size={80} color={colors.accent} />
+        <MaterialCommunityIcons name={item.icon} size={80} color={colors.accent} style={{marginLeft: 4}}/>
       </View>
       <Text style={styles.slideTitle}>{item.title}</Text>
       <Text style={styles.slideDesc}>{item.desc}</Text>
@@ -144,13 +151,14 @@ export default function LandingScreen() {
   return (
     <View style={styles.container}>
       {/* Skip 버튼 */}
-      <View style={styles.skipContainer}>
-        {currentPage < SLIDES.length - 1 && (
-          <TouchableOpacity onPress={() => goToPage(SLIDES.length - 1)}>
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      <Animated.View style={[styles.skipContainer, { opacity: skipAnim }]}>
+        <TouchableOpacity
+          onPress={() => goToPage(SLIDES.length - 1)}
+          disabled={currentPage === SLIDES.length - 1}
+        >
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* 슬라이드 영역 */}
       <View
@@ -220,7 +228,10 @@ export default function LandingScreen() {
 
         <View style={{ height: spacing.xl }} />
 
-        <Animated.View style={{ opacity: fadeAnim, width: '100%' }}>
+        <Animated.View
+          style={{ opacity: fadeAnim, width: '100%' }}
+          pointerEvents={currentPage === SLIDES.length - 1 ? 'auto' : 'none'}
+        >
           <TouchableOpacity
             style={styles.loginButton}
             onPress={handleGoogleLogin}
@@ -233,7 +244,10 @@ export default function LandingScreen() {
 
         <View style={{ height: spacing.md }} />
 
-        <Animated.View style={{ opacity: fadeAnim }}>
+        <Animated.View
+          style={{ opacity: fadeAnim }}
+          pointerEvents={currentPage === SLIDES.length - 1 ? 'auto' : 'none'}
+        >
           <Text style={styles.demoText}>
             구글 로그인 없이 먼저{' '}
             <Text style={styles.demoLink} onPress={startDemo}>
@@ -257,10 +271,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   skipContainer: {
-    height: 80,
-    paddingTop: 40,
-    paddingRight: 20,
-    alignItems: 'flex-end',
+    height: 48,
+    paddingTop: 12,
+    paddingLeft: 24,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
   skipText: {
@@ -275,7 +289,8 @@ const styles = StyleSheet.create({
   slide: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 40,
+    paddingLeft: 46,
+    paddingRight: 34,
   },
   iconCircle: {
     width: 200,
@@ -286,6 +301,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
   },
   slideTitle: {
     fontFamily: fonts.bold,
@@ -294,6 +310,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 38,
     marginTop: 48,
+    width: '100%',
   },
   slideDesc: {
     fontFamily: fonts.regular,
@@ -302,6 +319,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 26,
     marginTop: 16,
+    width: '100%',
   },
   arrow: {
     position: 'absolute',
@@ -321,6 +339,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginLeft: 6,
   },
   dot: {
     height: 8,
