@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   Animated,
-  PanResponder,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
@@ -49,29 +48,32 @@ export default function SessionScreen() {
 
   const chatListRef = useRef<FlatList>(null);
   const contentHeightAnim = useRef(new Animated.Value(COLLAPSED_H)).current;
-  const evidencePanY = useRef(new Animated.Value(0)).current;
-  const evidencePanResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gs) => {
-        if (gs.dy > 0) evidencePanY.setValue(gs.dy);
-      },
-      onPanResponderRelease: (_, gs) => {
-        if (gs.dy > 80) {
-          Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
-            setShowEvidenceModal(false);
-            evidencePanY.setValue(0);
-          });
-        } else {
-          Animated.spring(evidencePanY, { toValue: 0, useNativeDriver: true }).start();
-        }
-      },
-    })
-  ).current;
+  const evidencePanY = useRef(new Animated.Value(500)).current;
+  const exitPanY = useRef(new Animated.Value(500)).current;
+
+  useEffect(() => { initSession(); }, []);
 
   useEffect(() => {
-    initSession();
-  }, []);
+    if (showEvidenceModal) {
+      evidencePanY.setValue(500);
+      Animated.timing(evidencePanY, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+    }
+  }, [showEvidenceModal]);
+
+  useEffect(() => {
+    if (showExitModal) {
+      exitPanY.setValue(500);
+      Animated.timing(exitPanY, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+    }
+  }, [showExitModal]);
+
+  const closeEvidence = () => {
+    Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => setShowEvidenceModal(false));
+  };
+
+  const closeExit = () => {
+    Animated.timing(exitPanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => setShowExitModal(false));
+  };
 
   useEffect(() => {
     if (chatHistory.length > 0 || isLoadingResponse) {
@@ -162,8 +164,8 @@ export default function SessionScreen() {
   };
 
   const handleExitConfirm = () => {
-    setShowExitModal(false);
-    setTimeout(navigateToResult, 300);
+    closeExit();
+    setTimeout(navigateToResult, 350);
   };
 
   // ── 채팅 버블 ─────────────────────────────────────────────────
@@ -336,35 +338,26 @@ export default function SessionScreen() {
       {/* 세션 종료 모달 */}
       {showExitModal && (
         <View style={styles.modalOverlay}>
-          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setShowExitModal(false)} />
-          <View style={[styles.modalSheet, Platform.OS === 'web' ? { cursor: 'default' } as any : {}]}>
-            <View style={styles.modalHandle} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={closeExit} />
+          <Animated.View style={[styles.modalSheet, { transform: [{ translateY: exitPanY }] }, Platform.OS === 'web' ? { cursor: 'default' } as any : {}]}>
             <Text style={styles.modalTitle}>세션을 종료하시겠습니까?</Text>
             <Text style={styles.modalDesc}>지금까지의 대화 내용을 바탕으로 분석 리포트를 생성합니다.</Text>
             <View style={{ height: spacing.lg }} />
             <TouchableOpacity style={styles.modalPrimaryBtn} onPress={handleExitConfirm}>
               <Text style={styles.modalPrimaryBtnText}>네, 리포트 생성하기</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalSecondaryBtn} onPress={() => setShowExitModal(false)}>
+            <TouchableOpacity style={styles.modalSecondaryBtn} onPress={closeExit}>
               <Text style={styles.modalSecondaryBtnText}>아니요, 더 대화할래요</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       )}
 
       {/* 근거 문장 모달 */}
       {showEvidenceModal && (
         <View style={styles.modalOverlay}>
-          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => {
-            Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
-              setShowEvidenceModal(false);
-              evidencePanY.setValue(0);
-            });
-          }} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={closeEvidence} />
           <Animated.View style={[styles.modalSheet, { transform: [{ translateY: evidencePanY }] }, Platform.OS === 'web' ? { cursor: 'default' } as any : {}]}>
-            <View {...evidencePanResponder.panHandlers} style={styles.modalHandleArea}>
-              <View style={styles.modalHandle} />
-            </View>
             <View style={styles.evidenceRow}>
               <MaterialCommunityIcons name="book-open-variant" size={20} color={colors.accent} />
               <Text style={styles.modalTitle}>근거 문장 확인</Text>
@@ -377,18 +370,12 @@ export default function SessionScreen() {
               <Text style={styles.evidenceQuoteSource}>- 3번째 문단</Text>
             </View>
             <View style={styles.evidenceHint}>
-              <MaterialCommunityIcons name="lightbulb-outline" size={14} color="#F57F17" />
               <Text style={styles.evidenceHintText}>
-                튜터의 노트: 이 문장에서 화자의 감정이 '슬픔'임을 직접적으로 확인할 수 있어요.
+                💡 튜터의 노트: 이 문장에서 화자의 감정이 '슬픔'임을 직접적으로 확인할 수 있어요.
               </Text>
             </View>
             <View style={{ height: spacing.lg }} />
-            <TouchableOpacity style={styles.modalPrimaryBtn} onPress={() => {
-              Animated.timing(evidencePanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() => {
-                setShowEvidenceModal(false);
-                evidencePanY.setValue(0);
-              });
-            }}>
+            <TouchableOpacity style={styles.modalPrimaryBtn} onPress={closeEvidence}>
               <Text style={styles.modalPrimaryBtnText}>확인</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -595,14 +582,6 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   modalSheet: { backgroundColor: colors.background, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing.lg },
-  modalHandleArea: {
-    alignItems: 'center',
-    paddingVertical: 8,
-    marginTop: -8,
-    marginHorizontal: -spacing.lg,
-    ...(Platform.OS === 'web' ? { cursor: 'grab' } as any : {}),
-  },
-  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center' },
   modalTitle: { fontFamily: fonts.bold, fontSize: 18, color: colors.text },
   modalDesc: { fontFamily: fonts.regular, fontSize: 14, color: colors.textSecondary, marginTop: 6 },
   modalPrimaryBtn: { height: 52, backgroundColor: colors.accent, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
