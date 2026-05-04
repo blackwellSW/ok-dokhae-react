@@ -1,12 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   Alert,
-  Modal,
+  Animated,
   ListRenderItemInfo,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -17,7 +18,25 @@ import { mockApiService, type Work } from '@/services/mockApiService';
 
 const DEMO_WORKS: Work[] = mockApiService.getWorks();
 
-type UploadedFile = { name: string; uri: string };
+type UploadedFile = {
+  name: string;
+  uri: string;
+  mimeType?: string;
+  size?: number;
+  previewText?: string;
+};
+
+const formatFileSize = (bytes?: number): string => {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getFileExt = (name?: string): string => {
+  if (!name) return '';
+  return name.split('.').pop()?.toUpperCase() ?? '';
+};
 
 export default function HomeScreen() {
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
@@ -27,6 +46,20 @@ export default function HomeScreen() {
 
   const listRef = useRef<FlatList>(null);
   const scrollOffset = useRef(0);
+  const uploadPanY = useRef(new Animated.Value(500)).current;
+
+  useEffect(() => {
+    if (uploadedFile !== null) {
+      uploadPanY.setValue(500);
+      Animated.timing(uploadPanY, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+    }
+  }, [uploadedFile]);
+
+  const closeUploadModal = () => {
+    Animated.timing(uploadPanY, { toValue: 500, duration: 200, useNativeDriver: true }).start(() =>
+      setUploadedFile(null)
+    );
+  };
 
   const works = DEMO_WORKS.filter((w) => !deletedIds.has(w.id));
 
@@ -75,7 +108,20 @@ export default function HomeScreen() {
       });
       if (!result.canceled && result.assets.length > 0) {
         const asset = result.assets[0];
-        setUploadedFile({ name: asset.name, uri: asset.uri });
+        let previewText: string | undefined;
+        if (asset.mimeType === 'text/plain') {
+          try {
+            const text = await fetch(asset.uri).then((r) => r.text());
+            previewText = text.length > 600 ? text.substring(0, 600) + '...' : text;
+          } catch { /* ignore */ }
+        }
+        setUploadedFile({
+          name: asset.name,
+          uri: asset.uri,
+          mimeType: asset.mimeType ?? undefined,
+          size: asset.size ?? undefined,
+          previewText,
+        });
       }
     } catch {
       Alert.alert('오류', '파일을 불러오는 중 문제가 발생했습니다.');
@@ -185,13 +231,10 @@ export default function HomeScreen() {
       </View>
 
       {/* 업로드 완료 모달 */}
-      <Modal visible={uploadedFile !== null} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setUploadedFile(null)}
-        >
-          <TouchableOpacity activeOpacity={1} style={styles.modalSheet}>
+      {uploadedFile !== null && (
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={closeUploadModal} />
+          <Animated.View style={[styles.modalSheet, { transform: [{ translateY: uploadPanY }] }]}>
             {/* 핸들 바 */}
             <View style={styles.modalHandle} />
 
@@ -202,31 +245,59 @@ export default function HomeScreen() {
 
             <View style={{ height: spacing.md }} />
 
+            {/* 파일 정보 카드 */}
             <View style={styles.modalCard}>
               <View style={styles.modalCardRow}>
                 <MaterialCommunityIcons name="check-circle" size={20} color={colors.accent} />
-                <Text style={styles.modalFileName} numberOfLines={1}>
-                  {uploadedFile?.name}
-                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.modalFileName} numberOfLines={1}>{uploadedFile.name}</Text>
+                  {uploadedFile.size != null && (
+                    <Text style={styles.modalFileSize}>{formatFileSize(uploadedFile.size)}</Text>
+                  )}
+                </View>
+                {getFileExt(uploadedFile.name) !== '' && (
+                  <View style={styles.fileTypeBadge}>
+                    <Text style={styles.fileTypeBadgeText}>{getFileExt(uploadedFile.name)}</Text>
+                  </View>
+                )}
               </View>
             </View>
 
-            <View style={{ height: spacing.lg }} />
+            <View style={{ height: spacing.sm }} />
+
+            {/* 지문 내용 미리보기 */}
+            <View style={styles.contentPreviewBox}>
+              <Text style={styles.contentPreviewLabel}>지문 내용</Text>
+              {uploadedFile.previewText ? (
+                <ScrollView style={styles.contentPreviewScroll} nestedScrollEnabled>
+                  <Text style={styles.contentPreviewText}>{uploadedFile.previewText}</Text>
+                </ScrollView>
+              ) : (
+                <View style={styles.contentPreviewPlaceholder}>
+                  <MaterialCommunityIcons name="file-check-outline" size={28} color={colors.accent} />
+                  <Text style={styles.contentPreviewPlaceholderText}>
+                    {'지문이 업로드되었습니다.\n세션을 시작하면 AI가 내용을 분석합니다.'}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={{ height: spacing.md }} />
 
             <TouchableOpacity
               style={styles.startButton}
               activeOpacity={0.85}
               onPress={() => {
-                const file = uploadedFile!;
-                setUploadedFile(null);
-                navigateToSession(file.uri, file.name);
+                const file = uploadedFile;
+                closeUploadModal();
+                setTimeout(() => navigateToSession(file.uri, file.name), 250);
               }}
             >
               <Text style={styles.startButtonText}>이 자료로 진단 시작하기</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+          </Animated.View>
+        </View>
+      )}
     </View>
   );
 }
@@ -396,9 +467,11 @@ const styles = StyleSheet.create({
   scrollArrowLeft: { left: 0 },
   scrollArrowRight: { right: 0 },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
+    zIndex: 100,
   },
   modalSheet: {
     backgroundColor: colors.background,
@@ -439,6 +512,57 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.text,
     flex: 1,
+  },
+  modalFileSize: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  fileTypeBadge: {
+    backgroundColor: colors.accentLight,
+    borderRadius: radius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  fileTypeBadgeText: {
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    color: colors.accentDark,
+  },
+  contentPreviewBox: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  contentPreviewLabel: {
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
+  },
+  contentPreviewScroll: {
+    maxHeight: 140,
+  },
+  contentPreviewText: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 22,
+  },
+  contentPreviewPlaceholder: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
+  },
+  contentPreviewPlaceholderText: {
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   startButton: {
     width: '100%',
