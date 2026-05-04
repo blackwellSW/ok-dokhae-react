@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ok-dokhae-react",
+    "name": "OK독해",
     "slug": "ok-dokhae-react",
     "scheme": "okdokhae",
     "version": "1.0.0",
@@ -25,7 +25,8 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "OK독해"
     },
     "plugins": [
       "expo-router",
