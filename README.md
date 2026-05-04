@@ -1,6 +1,6 @@
 <div align="center">
 
-# OK독해 AI 학습 시스템 — React Native
+# OK독해 AI 학습 시스템
 
 <p>
   <img src="https://img.shields.io/badge/Award-2026%20Google%20Cloud%20AI%20Competition%20Grand%20Prize-3FA34D?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Award Badge" />
@@ -9,57 +9,134 @@
 </p>
 
 <p>
-  <strong>2026 전국 Google Cloud 기반 AI 융합 경진대회 최우수상 수상작</strong><br/>
-  <sub>Flutter 앱의 React Native(Expo) 크로스플랫폼 이식 버전</sub>
+  <strong>2026 전국 Google Cloud 기반 AI 융합 경진대회 최우수상</strong><br/>
+  <sub>수상일: 2026/02/13</sub>
 </p>
 
 <p>
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:14532d,50:16a34a,100:86efac&height=220&section=header&text=Thinking%20Beyond%20Answers&fontSize=44&fontColor=ffffff&animation=fadeIn&fontAlignY=35" width="100%" alt="banner" />
 </p>
 
+<p>
+  <strong>Socratic AI Tutor for Classical Literature</strong><br/>
+  <sub>Green-themed portfolio highlight for the OK독해 project</sub>
+</p>
+
 </div>
 
 ## 프로젝트 한 줄 소개
 
-고전 문학 학습에서 정답을 바로 주는 대신, 학생이 스스로 근거를 찾고 사고를 확장하도록 유도하는 AI 학습 시스템의 React Native 프론트엔드입니다.
+고전 문학 학습에서 정답을 바로 주는 대신, 학생이 스스로 근거를 찾고 사고를 확장하도록 유도하는 AI 학습 시스템입니다.
 
----
+## 하이라이트
 
-## 이 저장소에 대해
+- `소크라틱 질문` 기반 대화형 튜터
+- `4단계 사고` 구조의 학습 흐름
+- `직접 평가 + 정량 평가` 결합 리포트
+- `Google Cloud` 기반 학습 및 배포 파이프라인
+- `React Native(Expo)` 앱 + `FastAPI` 백엔드 + `Vertex AI` 서비스 연동
 
-원본 프로젝트([ok-dokhae-ai-model](https://github.com/blackwellSW/ok-dokhae-ai-model))는 Flutter + FastAPI + Vertex AI 기반으로 개발되었습니다. 이 저장소는 동일한 서비스를 **React Native(Expo)** 로 이식한 버전으로, 웹·iOS·Android를 단일 코드베이스로 지원하는 것을 목표로 합니다.
+## 언론 보도
 
-> 현재는 Mock API 기반으로 동작하며, 백엔드 연동 시 `src/services/mockApiService.ts`의 각 함수를 실제 API 호출로 교체하면 됩니다.
+- Pressian: https://www.pressian.com/pages/articles/2026022317460997947
 
----
+## 수상 성과
 
-## 화면 구성
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <div style="font-size:18px; font-weight:700;">🏆 최우수상</div>
+      <div>2026 전국 Google Cloud 기반 AI 융합 경진대회</div>
+      <div><strong>2026/02/13</strong></div>
+    </td>
+    <td align="center" width="50%">
+      <div style="font-size:18px; font-weight:700;">🌿 프로젝트 방향</div>
+      <div>정답 중심이 아니라 사고 과정 중심</div>
+      <div>문학 해석, 근거 연결, 재사유 강화</div>
+    </td>
+  </tr>
+</table>
 
-| 화면 | 설명 |
-|------|------|
-| **Landing** | 온보딩 슬라이드 + Google 로그인 |
-| **Home** | 파일 업로드 + 예시 작품 선택 |
-| **Session** | 소크라틱 AI 튜터와의 대화 세션 |
-| **Result** | 사고력 진단 리포트 (영역별 점수 · 흐름 분석 · 맞춤 처방) |
+## 팀
 
----
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/healthy27">
+        <img src="https://github.com/healthy27.png?size=120" width="96" height="96" style="border-radius:50%;" alt="healthy27" />
+      </a>
+      <br/>
+      <strong>healthy27</strong>
+      <br/>
+      <sub>팀장, AI/데이터 담당</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/blackwellSW">
+        <img src="https://github.com/blackwellSW.png?size=120" width="96" height="96" style="border-radius:50%;" alt="blackwellSW" />
+      </a>
+      <br/>
+      <strong>blackwellSW</strong>
+      <br/>
+      <sub>프론트엔드/기획</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/amblergonz">
+        <img src="https://github.com/amblergonz.png?size=120" width="96" height="96" style="border-radius:50%;" alt="amblergonz" />
+      </a>
+      <br/>
+      <strong>amblergonz</strong>
+      <br/>
+      <sub>백엔드/기획</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/123k444">
+        <img src="https://github.com/123k444.png?size=120" width="96" height="96" style="border-radius:50%;" alt="123k444" />
+      </a>
+      <br/>
+      <strong>123k444</strong>
+      <br/>
+      <sub>백엔드/디자인</sub>
+    </td>
+  </tr>
+</table>
 
 ## 핵심 기능
 
 ### 1. 사고를 유도하는 대화형 학습
-- 학생의 답에 바로 정답을 알려주지 않고, 다음 사고를 이끄는 질문을 제공합니다.
-- 이해 → 정서 분석 → 근거 연결 → 맥락 확장의 4단계 흐름으로 학습합니다.
+- 학생의 답에 바로 정답 처리하지 않고, 다음 사고를 이끄는 질문을 제공합니다.
+- 이해 → 해석 → 근거 연결 → 재사유를 반복하며 학습합니다.
 
-### 2. 파일 업로드 기반 학습
-- PDF, TXT, DOCX 파일을 업로드해 자신만의 지문으로 세션을 시작할 수 있습니다.
-- 텍스트 파일은 업로드 즉시 미리보기를 제공합니다.
+### 2. 자동 평가 시스템
+- Gemini 기반 직접 평가
+- 발화문 분석 및 언어 지표 기반 정량 평가
+- 두 결과를 합산해 정밀한 피드백 리포트를 작성합니다.
 
-### 3. 진단 리포트
-- 이해력 · 추론력 · 근거력 · 표현력 4개 영역의 점수와 등급을 시각화합니다.
-- 사고 흐름 타임라인으로 각 단계의 수행 수준을 확인할 수 있습니다.
-- 튜터의 맞춤 처방으로 다음 학습 방향을 제시합니다.
+### 3. 문서/세션/리포트 관리
+- 문서 업로드 및 파싱
+- 학습 세션 생성 및 대화 로그 저장
+- 리포트 생성 및 재조회
+- 교사용 요약 화면 지원
 
----
+### 4. 페르소나 기반 응답 스타일
+- 조선 시대 문인 스타일
+- 교육 스타일 기반 페르소나
+- 학생이 원하는 튜터 키를 선택할 수 있는 구조
+
+## 아키텍처
+
+```text
+사용자 입력
+   ↓
+React Native(Expo) 앱
+   ↓
+FastAPI 백엔드
+   ↓
+Vertex AI / vLLM 모델 서비스
+   ↓
+Gemini + NLP 평가
+   ↓
+리포트 저장 및 재조회
+```
 
 ## 기술 스택
 
@@ -68,127 +145,85 @@
   <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
   <img src="https://img.shields.io/badge/TypeScript-2E7D32?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Expo_Router-16A34A?style=for-the-badge&logo=expo&logoColor=white" alt="Expo Router" />
-  <img src="https://img.shields.io/badge/Pretendard-15803D?style=for-the-badge" alt="Pretendard" />
+  <img src="https://img.shields.io/badge/Google_Cloud-34A853?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud" />
+  <img src="https://img.shields.io/badge/Vertex_AI-16A34A?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Vertex AI" />
+  <img src="https://img.shields.io/badge/Gemini-15803D?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/Firestore-65A30D?style=for-the-badge&logo=firebase&logoColor=white" alt="Firestore" />
 </p>
 
-| 분류 | 기술 |
-|------|------|
-| 프레임워크 | React Native 0.76 (New Architecture) |
-| 개발 환경 | Expo SDK 52 |
-| 라우팅 | Expo Router v4 (파일 기반) |
-| 언어 | TypeScript |
-| 폰트 | Pretendard (Regular · Medium · Bold) |
-| 아이콘 | @expo/vector-icons (MaterialCommunityIcons) |
-| 파일 선택 | expo-document-picker |
-| 애니메이션 | React Native Animated API |
-
----
-
-## 프로젝트 구조
+## 저장소 구성
 
 ```text
-ok-dokhae-react/
+.
 ├── app/                    # Expo Router 화면
 │   ├── landing.tsx         # 온보딩 슬라이드
-│   ├── home.tsx            # 메인 홈
-│   ├── session.tsx         # 학습 세션
-│   └── result.tsx          # 진단 리포트
+│   ├── home.tsx            # 메인 홈 (파일 업로드 · 예시 작품)
+│   ├── session.tsx         # AI 튜터 학습 세션
+│   └── result.tsx          # 사고력 진단 리포트
 ├── src/
 │   ├── constants/
-│   │   └── theme.ts        # 색상·폰트·간격 토큰
+│   │   └── theme.ts        # 색상 · 폰트 · 간격 토큰
 │   └── services/
 │       └── mockApiService.ts  # Mock API (백엔드 연동 전 임시)
-└── assets/                 # 이미지·폰트·아이콘
+├── assets/                 # 이미지 · 폰트 · 아이콘
+└── app.json                # Expo 프로젝트 설정
 ```
-
----
 
 ## 실행 방법
 
-### 의존성 설치
+### 1. 공통 의존성 설치
 
 ```bash
 npm install
 ```
 
-### 웹 실행
+### 2. 웹 실행
 
 ```bash
 npm run web
 ```
 
-### iOS / Android (Expo Go)
+### 3. iOS / Android (Expo Go)
 
 ```bash
 npx expo start
 ```
 
----
+## 환경 변수 예시
 
-## 백엔드 연동 가이드
+백엔드 연동 시 필요한 환경 변수입니다. ([원본 저장소](https://github.com/blackwellSW/ok-dokhae-ai-model) 참고)
 
-현재 `src/services/mockApiService.ts`가 모든 API 응답을 하드코딩으로 반환합니다. 실제 백엔드 연동 시 아래 함수들을 교체하면 됩니다.
+```bash
+GEMINI_API_KEY=your-api-key
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+JWT_SECRET_KEY=change-this-in-production
+DATABASE_URL=sqlite+aiosqlite:////tmp/test.db
+VERTEX_AI_ENDPOINT=your-vertex-endpoint
+VERTEX_AI_MODEL=classical-lit
+USE_VERTEX_AI=true
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
 
-| 함수 | 역할 |
-|------|------|
-| `getWorks()` | 학습 가능한 작품 목록 조회 |
-| `getWorkContent(id)` | 지문 본문 조회 |
-| `startThinkingSession(id)` | 세션 초기화 |
-| `getGuidance(id, answer)` | AI 튜터 응답 생성 |
+## 주요 API
 
----
+백엔드 연동 시 사용하는 API 엔드포인트입니다.
 
-## 관련 링크
+- `POST /auth/login`
+- `POST /auth/register`
+- `POST /documents`
+- `POST /sessions`
+- `POST /sessions/{id}/messages`
+- `GET /reports/{id}`
+- `GET /teacher/*`
 
-- 원본 저장소: [ok-dokhae-ai-model](https://github.com/blackwellSW/ok-dokhae-ai-model)
-- 수상 소식 (Pressian): https://www.pressian.com/pages/articles/2026022317460997947
+## 개발 메모
 
----
+- 현재 `src/services/mockApiService.ts`가 모든 API 응답을 대체합니다. 백엔드 연동 시 각 함수를 실제 호출로 교체하면 됩니다.
+- 발표/기술 정리 문서는 [원본 저장소](https://github.com/blackwellSW/ok-dokhae-ai-model)의 `docs/` 폴더에 있습니다.
 
-## 팀
+## GitHub
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/healthy27">
-        <img src="https://github.com/healthy27.png?size=120" width="80" height="80" style="border-radius:50%;" alt="healthy27" />
-      </a>
-      <br/>
-      <strong>healthy27</strong>
-      <br/>
-      <sub>팀장 · AI/데이터</sub>
-    </td>
-    <td align="center">
-      <a href="https://github.com/blackwellSW">
-        <img src="https://github.com/blackwellSW.png?size=120" width="80" height="80" style="border-radius:50%;" alt="blackwellSW" />
-      </a>
-      <br/>
-      <strong>blackwellSW</strong>
-      <br/>
-      <sub>프론트엔드 · 기획</sub>
-    </td>
-    <td align="center">
-      <a href="https://github.com/amblergonz">
-        <img src="https://github.com/amblergonz.png?size=120" width="80" height="80" style="border-radius:50%;" alt="amblergonz" />
-      </a>
-      <br/>
-      <strong>amblergonz</strong>
-      <br/>
-      <sub>백엔드 · 기획</sub>
-    </td>
-    <td align="center">
-      <a href="https://github.com/123k444">
-        <img src="https://github.com/123k444.png?size=120" width="80" height="80" style="border-radius:50%;" alt="123k444" />
-      </a>
-      <br/>
-      <strong>123k444</strong>
-      <br/>
-      <sub>백엔드 · 디자인</sub>
-    </td>
-  </tr>
-</table>
-
----
+- Repository: https://github.com/blackwellSW/ok-dokhae-ai-model
 
 ## 라이선스
 
